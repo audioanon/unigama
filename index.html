@@ -7,7 +7,7 @@
   <title>UniGAMA</title>
   <meta
     name="description"
-    content="UniGAMA is a unified audio-language model for audio understanding, reasoning, text-to-audio generation, text-guided editing, MIDI rendering, and sketch-to-sound control." />
+    content="UniGAMA is a unified audio-language model for audio understanding, reasoning, text-to-audio generation, and text-guided editing in a single decoder-only architecture." />
   <link rel="icon" type="image/x-icon" href="favicon.ico" />
   <link rel="icon" type="image/png" href="favicon-32x32.png" sizes="32x32" />
   <link rel="icon" type="image/png" href="favicon-16x16.png" sizes="16x16" />
@@ -36,12 +36,12 @@
             <h1>UniGAMA</h1>
             <p class="hero-copy">
               A unified audio-language model for understanding, reasoning, generation, and editing. UniGAMA brings
-              audio-to-text reasoning, text-to-audio synthesis, text-guided editing, MIDI rendering, and sketch-to-sound
-              control into one continuous-latent decoder-only model.
+              audio-to-text reasoning, text-to-audio synthesis, and text-guided editing into one continuous-latent
+              decoder-only model.
             </p>
             <div class="hero-actions">
               <a class="button button-primary" href="#demos">Listen to demos</a>
-              <a class="button button-secondary" href="#controls">MIDI and sketch controls</a>
+              <a class="button button-secondary" href="#results">See the results</a>
             </div>
           </div>
 
@@ -51,10 +51,10 @@
         </div>
 
         <div class="hero-stats" aria-label="UniGAMA summary statistics">
-          <div class="stat-card stat-card-hero"><strong>3B</strong><span>total parameters</span></div>
-          <div class="stat-card stat-card-hero"><strong>1.7B</strong><span>Qwen3 base LLM</span></div>
+          <div class="stat-card stat-card-hero"><strong>8B</strong><span>total parameters</span></div>
+          <div class="stat-card stat-card-hero"><strong>4B</strong><span>Qwen3-4B-Base backbone</span></div>
           <div class="stat-card stat-card-hero"><strong>8.5M</strong><span>training examples</span></div>
-          <div class="stat-card stat-card-hero"><strong>1M</strong><span>MIDI and sketch-control pairs</span></div>
+          <div class="stat-card stat-card-hero"><strong>21.5K</strong><span>H100-hours of training</span></div>
         </div>
       </div>
     </section>
@@ -89,8 +89,8 @@
             <h3>Language-Bridged Refiner</h3>
             <p>
               The generation pathway preserves pretrained language representations through multilevel hidden-state
-              bridges, token-type adaptive layer normalization, per-head attention gates, and a coarse-to-fine
-              diffusion head.
+              bridges, token-type adaptive layer normalization, and per-head attention gates. Every added module is
+              zero-initialized, so the refiner starts as an identity-like pass over the base model.
             </p>
           </article>
           <article class="info-card">
@@ -105,10 +105,12 @@
 
       <div class="content">
         <figure class="wide-figure">
-          <img src="figures/unified-comparison.png" alt="Comparison of audio language models and unified audio-language models" loading="lazy">
+          <img src="figures/comparison.png" alt="Comparison of audio language models and unified audio-language models" loading="lazy">
           <figcaption>
-            UniGAMA keeps the continuous-latent generation path while adding language bridges, adaptive normalization,
-            attention gates, and task-aware flow matching for reasoning, generation, and editing.
+            Large audio language models (a) read audio but cannot produce it. UALM and Bagpiper (b) emit discrete codec
+            tokens decoded by XCodec2, and AudioChat (c) moves generation to continuous latents through a separate
+            cascaded transformer. UniGAMA (d) keeps the continuous-latent path inside the backbone itself, adding the
+            LBR bridge, AdaLN, per-head gates, and task-aware flow for reasoning, generation, and editing.
           </figcaption>
         </figure>
       </div>
@@ -118,10 +120,11 @@
       <div class="content">
         <div class="section-heading">
           <p class="section-kicker">Results Snapshot</p>
-          <h2>Evaluated across reasoning, generation, captioning, and speech tasks.</h2>
+          <h2>Evaluated across reasoning, generation, editing, captioning, and speech tasks.</h2>
           <p>
-            The current paper reports UniGAMA on audio reasoning benchmarks, text-to-audio generation, audio captioning,
-            ASR, and TTS. Lower is better for FD, KL, and WER; higher is better for the remaining metrics.
+            UniGAMA is evaluated on audio reasoning benchmarks, text-to-audio generation, instruction-guided editing,
+            audio captioning, ASR, and TTS. Lower is better for FD, KL, FAD, LSD, and WER; higher is better for the
+            remaining metrics. All numbers are for the 8B model.
           </p>
         </div>
 
@@ -140,43 +143,61 @@
                 <td>Audio reasoning</td>
                 <td><strong>MMAU</strong></td>
                 <td>Sound / Music / Speech / Avg</td>
-                <td><strong class="result-value">46.4 / 40.6 / 54.3 / 47.1</strong></td>
+                <td><strong class="result-value">77.4 / 63.6 / 69.3 / 70.1</strong></td>
               </tr>
               <tr>
                 <td>Audio reasoning</td>
                 <td><strong>MMAR</strong></td>
                 <td>Accuracy</td>
-                <td><strong class="result-value">41.6</strong></td>
+                <td><strong class="result-value">59.4</strong></td>
+              </tr>
+              <tr>
+                <td>Audio reasoning</td>
+                <td><strong>MMAU-Pro</strong></td>
+                <td>Accuracy</td>
+                <td><strong class="result-value">53.4</strong></td>
+              </tr>
+              <tr>
+                <td>Audio reasoning</td>
+                <td><strong>MMSU</strong></td>
+                <td>Accuracy</td>
+                <td><strong class="result-value">70.61</strong></td>
               </tr>
               <tr>
                 <td>Text-to-audio</td>
                 <td><strong>AudioCaps</strong></td>
-                <td>FD / KL / IS / CLAP / AES</td>
-                <td><strong class="result-value">175.63 / 2.72 / 9.30 / 0.38 / 4.02</strong></td>
+                <td>FD / KL / IS / CL / AES</td>
+                <td><strong class="result-value">77.62 / 1.41 / 16.30 / 0.58 / 4.44</strong></td>
+              </tr>
+              <tr>
+                <td>Editing</td>
+                <td><strong>AudioEdit</strong></td>
+                <td>FAD / LSD averaged over add, remove, style transfer</td>
+                <td><strong class="result-value">3.01 / 2.47</strong></td>
               </tr>
               <tr>
                 <td>Captioning</td>
                 <td><strong>AudioCaps</strong></td>
-                <td>METEOR / CIDEr / SPIDEr / FENSE</td>
-                <td><strong class="result-value">15.1 / 49.2 / 12.2 / 41.1</strong></td>
+                <td>METEOR / CIDEr / SPICE / FENSE</td>
+                <td><strong class="result-value">23.4 / 69.2 / 16.9 / 61.4</strong></td>
               </tr>
               <tr>
                 <td>Captioning</td>
                 <td><strong>Clotho</strong></td>
-                <td>METEOR / CIDEr / SPIDEr / FENSE</td>
-                <td><strong class="result-value">10.2 / 9.2 / 8.4 / 41.4</strong></td>
+                <td>METEOR / CIDEr / SPICE / FENSE</td>
+                <td><strong class="result-value">17.6 / 44.5 / 12.8 / 54.2</strong></td>
               </tr>
               <tr>
                 <td>Speech</td>
                 <td><strong>LibriTTS ASR</strong></td>
                 <td>WER lower is better</td>
-                <td><strong class="result-value">13.70</strong></td>
+                <td><strong class="result-value">4.70</strong></td>
               </tr>
               <tr>
                 <td>Speech</td>
                 <td><strong>LibriTTS TTS</strong></td>
                 <td>Whisper WER lower is better</td>
-                <td><strong class="result-value">25.53</strong></td>
+                <td><strong class="result-value">3.05</strong></td>
               </tr>
             </tbody>
           </table>
@@ -188,11 +209,11 @@
       <div class="content">
         <div class="section-heading">
           <p class="section-kicker">Audio Demos</p>
-          <h2>Representative generations from editing, MIDI rendering, and sketch controls.</h2>
+          <h2>Representative generations from preservation, editing, and control-conditioned work.</h2>
           <p>
-            Each card shows the prompt and the available input, generated output, and reference audio. These clips
-            illustrate UniGAMA's unified audio path across preservation, editing, MIDI-to-audio, sketch-to-drums, and
-            sketch-to-instrument tasks.
+            Each card shows the prompt and the available input, generated output, and reference audio. The first group
+            covers tasks the paper trains and evaluates. The second group is exploratory work on control-conditioned
+            generation that the paper does not cover.
           </p>
         </div>
 
@@ -249,6 +270,19 @@
             </div>
           </article>
 
+        </div>
+
+        <div class="section-heading demo-subhead">
+          <p class="section-kicker">Ongoing Work</p>
+          <h3>Control-conditioned generation</h3>
+          <p>
+            Conditioning generation on MIDI and on sung or spoken sketches is an extension we are still exploring. These
+            clips are illustrative only: this work is not part of the training mixture, the data tables, or any
+            evaluation in the paper, and no numbers are claimed for it.
+          </p>
+        </div>
+
+        <div class="demo-grid">
           <article class="demo-card">
             <div class="demo-card-header">
               <span>Sketch-to-drum-loop</span>
@@ -346,48 +380,53 @@
           <p class="section-kicker">Architecture</p>
           <h2>Task-Aware Transfusion over packed text and audio spans.</h2>
           <p>
-            UniGAMA combines next-token prediction for text with conditional flow matching for audio latents. A
-            task-aware attention mask keeps language causal while allowing audio spans to use bidirectional latent
-            context during generation and editing.
+            UniGAMA combines next-token prediction for text with conditional flow matching for audio latents, trained in
+            one forward pass across three task families: audio-to-text, text-to-audio, and audio-to-audio. A task-aware
+            attention mask keeps language causal while allowing audio spans to use bidirectional latent context during
+            generation and editing.
           </p>
         </div>
 
         <figure class="wide-figure dark-figure">
-          <img src="figures/dac-vae.png" alt="UniGAMA architecture overview" loading="lazy">
+          <img src="figures/architecture.png" alt="UniGAMA architecture overview" loading="lazy">
           <figcaption>
-            UniGAMA packs text tokens and DAC-VAE audio latents into a unified sequence, processes them with a shared
-            decoder-only backbone, and uses the Language-Bridged Refiner to predict flow-matching velocity for output
-            audio spans.
+            Text tokens, audio-encoder embeddings, and DAC-VAE latents are packed into one interleaved sequence, and a
+            task router assigns each example to A2T, T2A, or A2A. A shared decoder-only backbone applies a task-aware
+            mask, causal over output text and bidirectional within output audio; the LM head reads that pass for A2T,
+            while the Language-Bridged Refiner predicts flow-matching velocity for output audio spans.
           </figcaption>
         </figure>
 
         <div class="architecture-grid">
           <article class="dark-card">
-            <h3>Audio tokenization</h3>
+            <h3>Continuous audio latents</h3>
             <p>
-              Target waveforms are encoded as 48 kHz mono DAC-VAE latents. Understanding tasks use audio features for
-              text prediction; generation tasks supervise latent velocity.
+              Every clip, input or target, enters as a 128-dimensional continuous latent from a frozen 48 kHz DAC-VAE
+              encoder, so one representation serves all three task families. For understanding turns only, a pooled
+              vector from a frozen Qwen3-Omni encoder is added as a global semantic prior.
             </p>
           </article>
           <article class="dark-card">
             <h3>Base language model</h3>
             <p>
-              Qwen3-1.7B-Base provides the shared decoder-only language backbone for prompts, answers, captions, and
-              task instructions.
+              Qwen3-4B-Base provides the shared decoder-only backbone for prompts, answers, captions, and task
+              instructions. With the refiner and the small added modules, UniGAMA totals 8B parameters.
             </p>
           </article>
           <article class="dark-card">
             <h3>Latent refiner</h3>
             <p>
-              The Language-Bridged Refiner receives language hidden states and timestep conditioning, then predicts
-              flow-matching velocity for audio spans.
+              The Language-Bridged Refiner is a second pass over the same backbone, built from every second layer. It
+              reads hidden states from three depths of the base pass, so generation draws on intermediate features
+              rather than the final layer alone.
             </p>
           </article>
           <article class="dark-card">
             <h3>Guided inference</h3>
             <p>
-              Three-branch classifier-free guidance separates text conditioning from source-audio conditioning, while
-              partial noising enables edit-mode generation.
+              Generation solves the learned flow ODE in 50 midpoint steps. Three-branch guidance separates text from
+              source-audio conditioning, and edit-mode partial noising starts from the source latent so the instruction
+              reshapes existing audio instead of replacing it.
             </p>
           </article>
         </div>
@@ -397,67 +436,25 @@
     <section id="controls" class="section-band section-band-light">
       <div class="content control-layout">
         <div>
-          <p class="section-kicker">Control-Conditioned Extensions</p>
-          <h2>MIDI-to-sound and sketch-to-sound are first-class training tasks.</h2>
+          <p class="section-kicker">Ongoing Work</p>
+          <h2>Conditioning generation on MIDI and on sketches.</h2>
           <p class="lead-text">
-            UniGAMA extends the base understanding/generation model with frame-aligned controls. MIDI controls provide
-            symbolic pitch, timing, velocity, and instrument-family signals. Sketch controls provide human-like
-            time-varying acoustic cues extracted from humming, beatboxing, tapping, vocal imitation, or degraded target
-            audio.
+            Beyond the tasks in the paper, we are exploring whether the same continuous-latent pathway can follow
+            frame-aligned control signals: symbolic MIDI on one side, and rough human sketches such as humming,
+            beatboxing, or tapping on the other. The demos above give a sense of where this currently stands.
           </p>
-          <div class="chip-list feature-chips">
-            <span>loudness envelope</span>
-            <span>brightness / spectral centroid</span>
-            <span>log f0 contour</span>
-            <span>periodicity</span>
-            <span>low-frequency rhythmic salience</span>
-            <span>high-frequency rhythmic salience</span>
-          </div>
         </div>
         <article class="task-panel control-note-panel">
-          <h3>Frame-aligned control schema</h3>
+          <h3>Not covered by the paper</h3>
           <p>
-            MIDI and sketch controls are projected into one fixed-width time-control tensor. MIDI occupies the symbolic
-            slice, sketch features occupy the acoustic slice, and source flags tell the model which control family is
-            active for each training example.
+            This extension is not part of the training mixture, the data tables, the ablations, or any evaluation in the
+            current paper. We report no benchmark numbers for it, and the clips should be read as work in progress
+            rather than as a claimed capability.
           </p>
           <p>
-            This is implementation detail rather than a separate paper figure, so the website keeps it textual.
-          </p>
-        </article>
-      </div>
-
-      <div class="content bucket-grid">
-        <article class="bucket-card">
-          <span>399,996</span>
-          <h3>MIDI-to-audio</h3>
-          <p>
-            Monophonic MIDI performances are rendered through Vital voices spanning sine, saw, square, triangle, bass,
-            pluck, bell, keys, organ, pad, string, brass, supersaw, and chiptune families.
-          </p>
-        </article>
-        <article class="bucket-card">
-          <span>400,000</span>
-          <h3>Sketch-to-instrument</h3>
-          <p>
-            Synthetic vocal sketches such as hum, breathy hum, whistle, buzzy voice, and la variants follow MIDI pitch
-            and timing, then condition target instrument renderings.
-          </p>
-        </article>
-        <article class="bucket-card">
-          <span>150,000</span>
-          <h3>Sketch-to-drum-loop</h3>
-          <p>
-            Beatbox-like controls condition full drum loops built from sample-pack one-shots, with house, techno, hip
-            hop, trap, drum and bass, and afro-inspired templates.
-          </p>
-        </article>
-        <article class="bucket-card">
-          <span>50,004</span>
-          <h3>Sketch-to-one-shot</h3>
-          <p>
-            Isolated kick, clap, snare, hat, percussion, and effect one-shots teach transient control in addition to
-            full loops and melodic instruments.
+            For everything the paper does train and measure, see the
+            <a class="inline-link" href="#results">results</a> and
+            <a class="inline-link" href="#data">data</a> sections.
           </p>
         </article>
       </div>
@@ -467,16 +464,17 @@
       <div class="content data-layout">
         <div>
           <p class="section-kicker">Data Mixture</p>
-          <h2>Broad audio tasks plus one million generated control examples.</h2>
+          <h2>Two training stages, 8.5M examples, across understanding, generation, and editing.</h2>
           <p class="lead-text">
-            The training mixture combines audio reasoning, captioning, speech, text-to-audio, audio editing, and
-            control-conditioned rendering. The control-only ratio is 40 percent MIDI-to-audio, 40 percent
-            sketch-to-instrument, 15 percent sketch-to-drums, and 5 percent sketch-to-one-shot.
+            Pretraining draws 4.54M samples from AudioSet, LibriVox, Common Voice, and Dolma v3, mixed at a 2:2:1
+            ratio of text-to-audio, audio-to-text, and plain language modeling, the last preserving the backbone's
+            reasoning ability. Supervised fine-tuning adds 3.96M samples of editing, preservation, inpainting, scene
+            mixing, speech transfer, and audio question answering.
           </p>
           <div class="data-stats">
             <div class="stat-card"><strong>4.54M</strong><span>pretraining examples</span></div>
             <div class="stat-card"><strong>3.96M</strong><span>SFT examples</span></div>
-            <div class="stat-card"><strong>2.5M</strong><span>AudioSkills-XL QA examples</span></div>
+            <div class="stat-card"><strong>3.5M</strong><span>AudioSkills-XL QA examples</span></div>
             <div class="stat-card"><strong>1.7M</strong><span>AudioSet examples</span></div>
             <div class="stat-card"><strong>1.34M</strong><span>Common Voice examples</span></div>
             <div class="stat-card"><strong>1.25M</strong><span>LibriVox examples</span></div>
@@ -494,16 +492,23 @@
             <span>audio inpainting</span>
             <span>scene mixing</span>
             <span>speech style transfer</span>
-            <span>MIDI rendering</span>
-            <span>sketch-conditioned rendering</span>
+            <span>conversational editing</span>
+            <span>speech emotion transfer</span>
+            <span>audio reversal</span>
+            <span>automatic speech recognition</span>
+            <span>text-to-speech</span>
           </div>
         </div>
       </div>
 
       <div class="content">
         <figure class="wide-figure figure-spaced">
-          <img src="figures/inpainting-example.png" alt="Audio inpainting example" loading="lazy">
-          <figcaption>Editing tasks use source audio plus text instructions, while generation tasks produce new audio from prompts and optional controls.</figcaption>
+          <img src="figures/inpainting.png" alt="Audio inpainting example" loading="lazy">
+          <figcaption>
+            Audio inpainting. Log-mel spectrograms for an input clip with a masked silent region (left), the ground truth
+            (middle), and UniGAMA's reconstruction (right). The model fills the masked span with content matching the
+            surrounding scene in timbre, energy, and spectral structure, without seeing the masked frames at inference.
+          </figcaption>
         </figure>
       </div>
     </section>
@@ -514,9 +519,9 @@
           <p class="section-kicker">Training Pipeline</p>
           <h2>Joint training with curriculum, robust controls, and prompt augmentation.</h2>
           <p class="lead-text dark-lead">
-            UniGAMA uses staged training to stabilize the shared language and audio objectives. Sketch-conditioned
-            examples deliberately corrupt controls during training so the model learns to respond to natural human
-            recordings instead of only pristine audio-derived features.
+            UniGAMA uses staged training to stabilize the shared language and audio objectives. Every module the refiner
+            adds is zero-initialized, so training starts from an identity-like pass over the base model and specializes
+            only as the flow-matching loss takes effect.
           </p>
         </div>
         <div class="timeline">
@@ -525,8 +530,9 @@
             <div>
               <h3>Stage 1: pretraining</h3>
               <p>
-                Train the unified language and latent-generation path on audio-to-text, text-to-audio, ASR, TTS, and
-                language-modeling data with a 2:2:1 T2A:A2T:text mixture.
+                Train the unified language and latent-generation path on a 4.54M-sample mixture of audio-to-text,
+                text-to-audio, ASR, TTS, and language-modeling data at a 2:2:1 T2A:A2T:text ratio. This stage carries no
+                audio-to-audio data; editing supervision begins only in Stage 2.
               </p>
             </div>
           </article>
@@ -535,28 +541,30 @@
             <div>
               <h3>Stage 2: supervised fine-tuning</h3>
               <p>
-                Mix reasoning, captioning, editing, preservation, inpainting, scene mixing, MIDI rendering, and
-                sketch-conditioned generation using homogeneous microbatches.
+                Instruction-tune on 3.96M samples covering text-guided editing, preservation, inpainting, scene mixing,
+                emotional and conversational speech transfer, and audio question answering. Microbatches stay
+                homogeneous in task type, so language and diffusion supervision never mix inside one update.
               </p>
             </div>
           </article>
           <article class="timeline-item">
             <span>3</span>
             <div>
-              <h3>Control robustness</h3>
+              <h3>Optimization</h3>
               <p>
-                Augment sketch controls with median filtering, temporal jitter, quantization, control noise, frame
-                dropout, gain jitter, pitch jitter, periodicity jitter, and channel dropout.
+                Both stages use AdamW in bfloat16, with a peak learning rate of 1e-4 in pretraining and 1e-5 in SFT,
+                across 8 nodes of 8 H100 GPUs. Training ran about two weeks, roughly 21,500 H100-hours in total.
               </p>
             </div>
           </article>
           <article class="timeline-item">
             <span>4</span>
             <div>
-              <h3>Prompt diversity</h3>
+              <h3>Inference-time control</h3>
               <p>
-                Use Qwen3-0.6B with vLLM to rewrite metadata-derived labels into short 4-12 word prompts while
-                preserving only facts present in the generated metadata.
+                Three-branch guidance and edit-mode partial noising need no retraining. One set of weights covers plain
+                text-to-audio and text-guided editing, by adjusting how strongly the model follows the source audio
+                against the instruction.
               </p>
             </div>
           </article>
@@ -571,8 +579,8 @@
           <strong>UniGAMA</strong>
         </div>
         <p>
-          Unified audio-language modeling for understanding, reasoning, generation, editing, MIDI rendering, and
-          sketch-conditioned sound synthesis.
+          Unified audio-language modeling for understanding, reasoning, generation, and text-guided editing in a single
+          decoder-only architecture.
         </p>
       </div>
     </footer>
